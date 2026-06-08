@@ -1,5 +1,5 @@
 import { classifyNewsItem } from "../config/newsCategories.js";
-import { parseList } from "./newsFetcher.js";
+import { fetchExternalNews, parseList } from "./newsFetcher.js";
 
 function clean(value, fallback = "") {
   return String(value || fallback).trim();
@@ -65,6 +65,87 @@ function normalizePolymarketMarket(market) {
   };
 }
 
+function topicFromNews(news) {
+  const text = `${news.title || ""} ${news.summary || ""}`.toLowerCase();
+
+  if (text.includes("ethereum") || text.includes("eth")) {
+    return {
+      headline: "📈 ETH momentum is heating up.",
+      title: "Will ETH outperform BTC as rotation returns?",
+      context:
+        "Traders are watching whether ETH can outperform BTC as rotation returns across major crypto assets.",
+    };
+  }
+
+  if (text.includes("bitcoin") || text.includes("btc")) {
+    return {
+      headline: "🔥 Bitcoin momentum is back in focus.",
+      title: "Will Bitcoin continue leading crypto market sentiment?",
+      context:
+        "Traders are watching whether BTC strength can turn into a broader market recovery.",
+    };
+  }
+
+  if (text.includes("ai") || text.includes("openai") || text.includes("anthropic")) {
+    return {
+      headline: "🔥 AI market momentum is back in focus.",
+      title: "Will AI-related assets and narratives keep gaining attention?",
+      context:
+        "Traders are watching whether fresh AI developments can drive another wave of market interest.",
+    };
+  }
+
+  if (text.includes("fed") || text.includes("inflation") || text.includes("cpi")) {
+    return {
+      headline: "🔥 Macro risk is back in focus.",
+      title: "Will the next macro signal shift market sentiment?",
+      context:
+        "Traders are watching whether macro data can trigger a stronger risk-on or risk-off move.",
+    };
+  }
+
+  return {
+    headline: `🔥 ${news.marketCategoryLabel || "Market"} momentum is back in focus.`,
+    title: news.title || "Will this market theme continue gaining attention?",
+    context:
+      news.summary ||
+      news.whyItMatters ||
+      "Traders are watching whether this setup can turn into a stronger market move.",
+  };
+}
+
+async function fetchMarketBriefsFromNews({ limit = 5, category = "all" } = {}) {
+  const newsItems = await fetchExternalNews({
+    limit: Math.max(Number(limit) || 5, 10),
+    category,
+  });
+
+  return newsItems.slice(0, Number(limit) || 5).map((news) => {
+    const brief = topicFromNews(news);
+    return {
+      marketId: `market-news-${news.id || Buffer.from(news.url).toString("base64url").slice(0, 32)}`,
+      externalId: news.id || news.url,
+      title: brief.title,
+      headline: brief.headline,
+      context: brief.context,
+      category: news.marketCategoryLabel || news.category || "Market",
+      marketCategory: news.marketCategory || "general",
+      marketCategoryLabel: news.marketCategoryLabel || news.category || "Market",
+      relevanceScore: news.relevanceScore || 0,
+      marketType: "Market News Brief",
+      source: news.source || "External News",
+      url: news.url,
+      createdAt: news.publishedAt || new Date().toISOString(),
+      volume: 0,
+      volume24hr: 0,
+      liquidity: 0,
+      yesPrice: null,
+      active: true,
+      closed: false,
+    };
+  });
+}
+
 async function fetchPolymarketMarkets({ limit = 20 } = {}) {
   const url = new URL("https://gamma-api.polymarket.com/markets");
   url.searchParams.set("active", "true");
@@ -107,6 +188,10 @@ export async function fetchExternalMarkets({ limit = 5, category = "all" } = {})
   const failures = results.filter((result) => result.status === "rejected");
 
   if (failures.length === results.length) {
+    if (process.env.MARKET_FALLBACK_TO_NEWS !== "false") {
+      return fetchMarketBriefsFromNews({ limit, category });
+    }
+
     throw new Error(
       `All external market sources failed: ${failures
         .map((failure) => failure.reason?.message || String(failure.reason))
