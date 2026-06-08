@@ -332,11 +332,11 @@ async function handleMarketBroadcast(req, res) {
     title: req.body?.title,
     category: req.body?.category || "General",
     marketType: req.body?.marketType || "Prediction",
-    url: req.body?.url || "https://retropick-v1.vercel.app",
+    url: req.body?.url,
   };
 
   if (!market.marketId || !market.title || !isValidUrl(market.url)) {
-    return res.status(400).json({ ok: false, error: "marketId, title, and valid url are required" });
+    return res.status(400).json({ ok: false, error: "marketId, title, and valid external url are required" });
   }
 
   const results = await dispatchMarket(market, req.body?.platforms, {

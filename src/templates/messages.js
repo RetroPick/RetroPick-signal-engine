@@ -17,7 +17,7 @@ export function marketTemplate(market = {}) {
   const title = escapeHtml(market.title || "New market is live");
   const category = escapeHtml(market.category || "General");
   const marketType = escapeHtml(market.marketType || "Prediction");
-  const url = clean(market.url || "https://retropick-v1.vercel.app");
+  const url = clean(market.url || "");
   const source = escapeHtml(market.source || "External Market");
   const yesPrice = market.yesPrice ? `${Math.round(Number(market.yesPrice) * 100)}%` : null;
 
@@ -32,8 +32,8 @@ export function marketTemplate(market = {}) {
     yesPrice ? `YES implied price: ${yesPrice}` : null,
     market.volume24hr ? `24h Volume: ${Number(market.volume24hr).toLocaleString("en-US")}` : null,
     "",
-    "View market:",
-    url,
+    url ? "View market:" : null,
+    url || null,
   ].filter(Boolean).join("\n");
 }
 
@@ -41,7 +41,7 @@ export function marketDiscordTemplate(market = {}) {
   const title = escapeMarkdown(market.title || "New market is live");
   const category = escapeMarkdown(market.category || "General");
   const marketType = escapeMarkdown(market.marketType || "Prediction");
-  const url = clean(market.url || "https://retropick-v1.vercel.app");
+  const url = clean(market.url || "");
   const source = escapeMarkdown(market.source || "External Market");
   const yesPrice = market.yesPrice ? `${Math.round(Number(market.yesPrice) * 100)}%` : null;
 
@@ -56,8 +56,8 @@ export function marketDiscordTemplate(market = {}) {
     yesPrice ? `YES implied price: ${yesPrice}` : null,
     market.volume24hr ? `24h Volume: ${Number(market.volume24hr).toLocaleString("en-US")}` : null,
     "",
-    "View market:",
-    url,
+    url ? "View market:" : null,
+    url || null,
   ].filter(Boolean).join("\n");
 }
 
@@ -99,7 +99,7 @@ export function newsTemplate(news = {}) {
   const title = escapeHtml(news.title || "Market Alpha News");
   const source = escapeHtml(news.source || "External News");
   const summary = escapeHtml(news.whyItMatters || news.summary || news.description || "New market-moving update.");
-  const url = clean(news.url || news.link || "https://retropick-v1.vercel.app");
+  const url = clean(news.url || news.link || "");
   const category = escapeHtml(news.marketCategoryLabel || news.category || "Market Risk");
   const score = Number(news.relevanceScore || 0);
 
@@ -120,8 +120,8 @@ export function newsTemplate(news = {}) {
     "",
     "Note: signal only, not financial advice.",
     "",
-    "Read more:",
-    url,
+    url ? "Read more:" : null,
+    url || null,
   ].join("\n");
 }
 
@@ -129,7 +129,7 @@ export function newsDiscordTemplate(news = {}) {
   const title = escapeMarkdown(news.title || "Market Alpha News");
   const source = escapeMarkdown(news.source || "External News");
   const summary = escapeMarkdown(news.whyItMatters || news.summary || news.description || "New market-moving update.");
-  const url = clean(news.url || news.link || "https://retropick-v1.vercel.app");
+  const url = clean(news.url || news.link || "");
   const category = escapeMarkdown(news.marketCategoryLabel || news.category || "Market Risk");
   const score = Number(news.relevanceScore || 0);
 
@@ -150,7 +150,7 @@ export function newsDiscordTemplate(news = {}) {
     "",
     "_Signal only, not financial advice._",
     "",
-    "Read more:",
-    url,
-  ].join("\n");
+    url ? "Read more:" : null,
+    url || null,
+  ].filter(Boolean).join("\n");
 }
