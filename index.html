@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RetroPick Signal Engine</title>
+    <meta
+      name="description"
+      content="Rancangan product dan technical docs RetroPick Signal Engine untuk broadcast market alert ke Telegram dan Discord."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="RetroPick Signal Engine">
+        <span class="brand-mark">R</span>
+        <span>
+          <strong>RetroPick</strong>
+          <small>Signal Engine</small>
+        </span>
+      </a>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a href="#architecture">Architecture</a>
+        <a href="#features">MVP</a>
+        <a href="#api">API</a>
+        <a href="#roadmap">Roadmap</a>
+      </nav>
+      <a class="header-action" href="#acceptance">Checklist</a>
+    </header>
+
+    <main id="top">
+      <section class="hero-section">
+        <div class="hero-copy">
+          <p class="eyebrow">Final Technical & Product Docs</p>
+          <h1>RetroPick Signal Engine</h1>
+          <p class="hero-lede">
+            Service terpisah untuk mengambil data market dari RetroPick API,
+            memformatnya menjadi konten komunitas, lalu mengirim sinyal ke
+            Telegram dan Discord secara otomatis atau semi-manual.
+          </p>
+          <div class="hero-actions" aria-label="Quick actions">
+            <a class="primary-button" href="#flow">Lihat Flow</a>
+            <a class="secondary-button" href="#templates">Template Konten</a>
+          </div>
+        </div>
+        <figure class="hero-visual">
+          <img
+            src="assets/signal-engine-hero.png"
+            alt="Visual dashboard RetroPick Signal Engine dengan API node, alert stream, dan delivery log"
+          />
+        </figure>
+      </section>
+
+      <section class="summary-band" aria-label="Product summary">
+        <div>
+          <span>Product</span>
+          <strong>RetroPick Signal Engine</strong>
+        </div>
+        <div>
+          <span>Use Case</span>
+          <strong>Market alert, announcement, daily recap</strong>
+        </div>
+        <div>
+          <span>Integrations</span>
+          <strong>RetroPick API, Telegram Bot API, Discord Webhook</strong>
+        </div>
+        <div>
+          <span>Recommended Phase</span>
+          <strong>MVP pull API + manual trigger, V2 webhook trigger</strong>
+        </div>
+      </section>
+
+      <section class="section-grid" id="architecture">
+        <div class="section-heading">
+          <p class="eyebrow">Architecture</p>
+          <h2>Broadcast dipisah dari website utama.</h2>
+          <p>
+            RetroPick Web tetap fokus sebagai produk utama, sementara Signal
+            Engine menjadi service distribusi konten ke komunitas.
+          </p>
+        </div>
+        <div class="architecture-panel" aria-label="Final architecture">
+          <div class="node web">RetroPick Web App</div>
+          <div class="connector">user/admin publish market</div>
+          <div class="node api">RetroPick API</div>
+          <div class="connector">market data, status, volume, category</div>
+          <div class="node engine">Signal Engine</div>
+          <div class="connector">format + dispatch</div>
+          <div class="channel-row">
+            <div class="node telegram">Telegram</div>
+            <div class="node discord">Discord</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="component-section">
+        <div class="component-table">
+          <article>
+            <span>RetroPick Web</span>
+            <p>User melihat market, explore category, dan membuka market detail.</p>
+            <strong>Jangan dibebani logic broadcast</strong>
+          </article>
+          <article>
+            <span>RetroPick API</span>
+            <p>Sumber data market, volume, kategori, dan status.</p>
+            <strong>Single source of truth</strong>
+          </article>
+          <article>
+            <span>Signal Engine</span>
+            <p>Ambil data, format caption, kirim ke Telegram dan Discord.</p>
+            <strong>Aman, scalable, mudah debug</strong>
+          </article>
+          <article>
+            <span>Telegram/Discord</span>
+            <p>Channel distribusi komunitas untuk aktivasi user dan market awareness.</p>
+            <strong>Tempat sinyal dikirim</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="flow-section" id="flow">
+        <div class="section-heading narrow">
+          <p class="eyebrow">Main Workflow</p>
+          <h2>Dua mode kerja: cron MVP dan real-time trigger.</h2>
+        </div>
+        <div class="flow-tabs" role="tablist" aria-label="Workflow tabs">
+          <button class="tab-button active" data-tab="mvp" type="button">MVP: Pull API</button>
+          <button class="tab-button" data-tab="v2" type="button">V2: Webhook</button>
+        </div>
+        <div class="flow-card active" id="tab-mvp">
+          <ol>
+            <li>Signal Engine berjalan setiap 5-10 menit menggunakan cron job.</li>
+            <li>Service mengambil market terbaru dari endpoint RetroPick API.</li>
+            <li>Service mengecek apakah market sudah pernah dikirim.</li>
+            <li>Caption dibuat sesuai template komunitas.</li>
+            <li>Caption dikirim ke Telegram dan Discord.</li>
+            <li>Log pengiriman disimpan agar tidak spam atau duplikasi.</li>
+          </ol>
+        </div>
+        <div class="flow-card" id="tab-v2">
+          <ol>
+            <li>Admin atau team publish market dari RetroPick.</li>
+            <li>RetroPick API memanggil endpoint Signal Engine.</li>
+            <li>Signal Engine memvalidasi secret token.</li>
+            <li>Konten dikirim real-time ke Telegram dan Discord.</li>
+            <li>Status delivery disimpan untuk monitoring.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="features-section" id="features">
+        <div class="section-heading">
+          <p class="eyebrow">MVP Scope</p>
+          <h2>Prioritas fitur untuk rilis awal.</h2>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card p0">
+            <span>P0</span>
+            <h3>New Market Alert</h3>
+            <p>Mengirim market baru saat status published.</p>
+            <strong>Wajib</strong>
+          </article>
+          <article class="feature-card p0">
+            <span>P0</span>
+            <h3>Manual Announcement</h3>
+            <p>Admin bisa kirim pesan campaign atau event manual.</p>
+            <strong>Wajib</strong>
+          </article>
+          <article class="feature-card p0">
+            <span>P0</span>
+            <h3>Broadcast Log</h3>
+            <p>Mencatat market yang sudah dikirim agar tidak duplikat.</p>
+            <strong>Wajib</strong>
+          </article>
+          <article class="feature-card p0">
+            <span>P0</span>
+            <h3>Telegram + Discord</h3>
+            <p>Kirim pesan ke channel Telegram dan Discord webhook.</p>
+            <strong>Wajib</strong>
+          </article>
+          <article class="feature-card p1">
+            <span>P1</span>
+            <h3>Trending Market Alert</h3>
+            <p>Alert saat volume market naik.</p>
+            <strong>Setelah MVP</strong>
+          </article>
+          <article class="feature-card p2">
+            <span>P2</span>
+            <h3>AI Caption Generator</h3>
+            <p>Generate caption otomatis dari data market.</p>
+            <strong>Versi lanjut</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="api-section" id="api">
+        <div class="section-heading">
+          <p class="eyebrow">API Contract</p>
+          <h2>Endpoint yang menghubungkan API, broadcast, dan monitoring.</h2>
+        </div>
+        <div class="api-grid">
+          <article class="api-panel">
+            <h3>RetroPick API</h3>
+            <div class="endpoint"><span>GET</span><code>/api/markets/latest</code><p>New Market Alert</p></div>
+            <div class="endpoint"><span>GET</span><code>/api/markets/trending</code><p>Trending Alert</p></div>
+            <div class="endpoint"><span>GET</span><code>/api/markets/:id</code><p>Manual broadcast</p></div>
+            <div class="endpoint"><span>GET</span><code>/api/markets/closing-soon</code><p>Closing Soon Alert</p></div>
+          </article>
+          <article class="api-panel">
+            <h3>Signal Engine</h3>
+            <div class="endpoint secure"><span>POST</span><code>/broadcast/market</code><p>X-Retropick-Secret</p></div>
+            <div class="endpoint secure"><span>POST</span><code>/broadcast/announcement</code><p>X-Retropick-Secret</p></div>
+            <div class="endpoint secure"><span>POST</span><code>/broadcast/daily-recap</code><p>X-Retropick-Secret</p></div>
+            <div class="endpoint"><span>GET</span><code>/health</code><p>Optional</p></div>
+            <div class="endpoint admin"><span>GET</span><code>/logs</code><p>Admin only</p></div>
+          </article>
+        </div>
+        <pre class="code-block"><code>POST /broadcast/market
+Headers:
+  X-Retropick-Secret: &lt;SECRET&gt;
+
+Body:
+{
+  "marketId": "btc-100k-q4",
+  "title": "Will Bitcoin hit $100K before Q4 2026?",
+  "category": "Crypto & Finance",
+  "marketType": "Direction",
+  "url": "https://retropick-v1.vercel.app/app/markets/btc-100k-q4",
+  "platforms": ["telegram", "discord"]
+}</code></pre>
+      </section>
+
+      <section class="logging-section">
+        <div class="section-heading">
+          <p class="eyebrow">Database & Logging</p>
+          <h2>Log delivery mencegah spam dan memudahkan audit.</h2>
+        </div>
+        <div class="split-layout">
+          <pre class="code-block"><code>CREATE TABLE broadcast_logs (
+  id SERIAL PRIMARY KEY,
+  market_id TEXT NOT NULL,
+  platform TEXT NOT NULL,
+  status TEXT NOT NULL,
+  message TEXT,
+  error_message TEXT,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);</code></pre>
+          <div class="log-fields">
+            <div><span>market_id</span><strong>btc-100k-q4</strong></div>
+            <div><span>platform</span><strong>telegram / discord</strong></div>
+            <div><span>status</span><strong>sent / failed / skipped</strong></div>
+            <div><span>error_message</span><strong>Webhook failed</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="security-section">
+        <div class="section-heading">
+          <p class="eyebrow">Security</p>
+          <h2>Credential hanya boleh hidup di server/service environment.</h2>
+        </div>
+        <div class="security-grid">
+          <div>Jangan expose Telegram token, Discord webhook, atau broadcast secret ke client-side code.</div>
+          <div>Gunakan secret header untuk endpoint broadcast internal.</div>
+          <div>Batasi request agar tidak spam menggunakan rate limit.</div>
+          <div>Validasi marketId dan URL sebelum dikirim.</div>
+          <div>Log semua percobaan broadcast, baik berhasil maupun gagal.</div>
+        </div>
+      </section>
+
+      <section class="templates-section" id="templates">
+        <div class="section-heading">
+          <p class="eyebrow">Content Templates</p>
+          <h2>Caption reusable untuk Telegram dan Discord.</h2>
+        </div>
+        <div class="template-grid">
+          <article class="message-card">
+            <h3>New Market Alert</h3>
+            <pre>🔥 New Market Live on RetroPick
+
+{title}
+
+Category: {category}
+Type: {marketType}
+Status: Open
+
+Trade your forecast:
+{url}</pre>
+          </article>
+          <article class="message-card">
+            <h3>Trending Market Alert</h3>
+            <pre>📈 Trending on RetroPick
+
+Market volume is heating up:
+{title}
+
+Live Volume: {volume}
+Category: {category}
+
+View market:
+{url}</pre>
+          </article>
+          <article class="message-card">
+            <h3>Daily Recap</h3>
+            <pre>🧠 RetroPick Daily Recap
+
+Top Markets Today:
+1. {market_1}
+2. {market_2}
+3. {market_3}
+
+Explore all markets:
+{home_url}</pre>
+          </article>
+          <article class="message-card">
+            <h3>Manual Announcement</h3>
+            <pre>⚡ RetroPick Update
+
+{announcement_title}
+
+{announcement_body}
+
+Open RetroPick:
+{url}</pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="roadmap-section" id="roadmap">
+        <div class="section-heading narrow">
+          <p class="eyebrow">Roadmap</p>
+          <h2>Bangun kecil dulu, lalu tambah automasi.</h2>
+        </div>
+        <div class="timeline">
+          <article><span>Phase 1</span><h3>MVP Broadcast Service</h3><p>Setup repo, env, Telegram sender, Discord sender, manual endpoint.</p></article>
+          <article><span>Phase 2</span><h3>Pull API Job</h3><p>Cron latest market, check log, dan prevent duplicate.</p></article>
+          <article><span>Phase 3</span><h3>Real-time Trigger</h3><p>RetroPick API trigger /broadcast/market saat publish.</p></article>
+          <article><span>Phase 4</span><h3>Growth Alerts</h3><p>Trending, closing soon, dan daily recap untuk komunitas.</p></article>
+          <article><span>Phase 5</span><h3>AI Caption</h3><p>Generate caption dari market data agar lebih hemat waktu.</p></article>
+        </div>
+      </section>
+
+      <section class="acceptance-section" id="acceptance">
+        <div class="section-heading">
+          <p class="eyebrow">Acceptance Criteria</p>
+          <h2>Checklist sebelum service dianggap siap MVP.</h2>
+        </div>
+        <div class="checklist">
+          <label><input type="checkbox" /> Service bisa mengirim pesan test ke Telegram.</label>
+          <label><input type="checkbox" /> Service bisa mengirim pesan test ke Discord.</label>
+          <label><input type="checkbox" /> Endpoint /broadcast/market hanya menerima secret token valid.</label>
+          <label><input type="checkbox" /> Market yang sama tidak terkirim dua kali ke platform yang sama.</label>
+          <label><input type="checkbox" /> Status Telegram dan Discord tercatat terpisah.</label>
+          <label><input type="checkbox" /> Log berisi market_id, platform, status, message, error_message, timestamp.</label>
+          <label><input type="checkbox" /> Service tetap berjalan walaupun salah satu platform error.</label>
+          <label><input type="checkbox" /> Template pesan terlihat rapi di Telegram dan Discord.</label>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Final recommendation: mulai dari MVP manual dan pull API. Setelah stabil,
+        lanjutkan real-time trigger, trending alert, daily recap, dan AI caption.
+      </p>
+      <a href="#top">Back to top</a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

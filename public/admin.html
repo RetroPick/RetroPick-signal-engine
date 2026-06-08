@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RetroPick Signal Admin</title>
+    <link rel="stylesheet" href="/admin.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">RetroPick Signal Engine</p>
+          <h1>Signal Admin</h1>
+        </div>
+        <label class="secret-box" for="secret">
+          Broadcast Secret
+          <input id="secret" type="password" placeholder="Paste BROADCAST_SECRET" />
+        </label>
+      </section>
+
+      <nav class="tabs" aria-label="Admin tabs">
+        <button class="tab active" data-tab="market" type="button">Market</button>
+        <button class="tab" data-tab="news" type="button">News</button>
+        <button class="tab" data-tab="logs" type="button">Logs</button>
+      </nav>
+
+      <section class="status" id="status">Ready.</section>
+
+      <section class="tab-panel active" id="panel-market">
+        <div class="controls">
+          <label>
+            Category
+            <select id="marketCategory">
+              <option value="all">All</option>
+              <option value="crypto">Crypto</option>
+              <option value="economics">Economics</option>
+              <option value="financials">Financials</option>
+              <option value="tech_science">Tech & Science</option>
+              <option value="climate">Climate</option>
+            </select>
+          </label>
+          <label>
+            Limit
+            <input id="marketLimit" type="number" min="1" max="10" value="3" />
+          </label>
+          <button id="fetchMarkets" type="button">Preview External Markets</button>
+          <button id="broadcastLatestMarkets" type="button">Auto Broadcast Fresh</button>
+        </div>
+        <div class="panel-grid">
+          <form class="form-card" id="marketForm">
+            <h2>Market Broadcast</h2>
+            <label>Market ID <input name="marketId" required value="manual-market-test" /></label>
+            <label>Title <input name="title" required value="Will this manual market signal be delivered?" /></label>
+            <label>Category <input name="category" value="Crypto" /></label>
+            <label>Market Type <input name="marketType" value="Direction" /></label>
+            <label>URL <input name="url" type="url" required value="https://retropick-v1.vercel.app/app/markets/manual-market-test" /></label>
+            <div class="check-row">
+              <label><input name="telegram" type="checkbox" checked /> Telegram Market</label>
+              <label><input name="discord" type="checkbox" checked /> Discord Market</label>
+              <label><input name="skipDuplicates" type="checkbox" checked /> Skip duplicates</label>
+            </div>
+            <button type="submit">Send Market</button>
+          </form>
+          <div>
+            <h2>Approve External Markets</h2>
+            <div id="marketList" class="list"></div>
+          </div>
+        </div>
+        <pre id="marketResult">{}</pre>
+      </section>
+
+      <section class="tab-panel" id="panel-news">
+        <div class="controls">
+          <label>
+            Category
+            <select id="category">
+              <option value="all">All</option>
+              <option value="crypto">Crypto</option>
+              <option value="economics">Economics</option>
+              <option value="financials">Financials</option>
+              <option value="tech_science">Tech & Science</option>
+              <option value="climate">Climate</option>
+            </select>
+          </label>
+          <label>
+            Limit
+            <input id="limit" type="number" min="1" max="10" value="3" />
+          </label>
+          <button id="fetchNews" type="button">Preview News</button>
+          <button id="broadcastLatest" type="button">Auto Broadcast Fresh</button>
+        </div>
+        <div class="panel-grid">
+          <div>
+            <h2>Approve News</h2>
+            <div id="newsList" class="list"></div>
+          </div>
+          <pre id="newsResult">{}</pre>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="panel-logs">
+        <div class="controls compact">
+          <button id="loadMarketLogs" type="button">Load Market Logs</button>
+          <button id="loadNewsLogs" type="button">Load News Logs</button>
+        </div>
+        <pre id="logsResult">{}</pre>
+      </section>
+    </main>
+    <script src="/admin.js"></script>
+  </body>
+</html>
