@@ -67,10 +67,37 @@ function newsQuestion(news = {}) {
   );
 }
 
+function marketClosing(market = {}, category = "market") {
+  const title = `${market.title || ""} ${market.headline || ""}`.toLowerCase();
+
+  if (market.closing || market.impact || market.question) {
+    return clean(market.closing || market.impact || market.question);
+  }
+
+  if (title.includes("bitcoin") || title.includes("btc")) {
+    return "Key question: Can BTC strength pull the broader market higher?";
+  }
+
+  if (title.includes("ethereum") || title.includes("eth")) {
+    return "Key question: Can ETH outperform BTC as rotation builds?";
+  }
+
+  if (title.includes("fed") || title.includes("inflation") || title.includes("cpi")) {
+    return "Potential impact: A surprise macro print could shift risk sentiment fast.";
+  }
+
+  if (title.includes("ai") || title.includes("openai") || title.includes("anthropic")) {
+    return "Potential impact: AI momentum could spill into tech and crypto narratives.";
+  }
+
+  return `Market question: Will this ${category} theme keep gaining attention?`;
+}
+
 export function marketTemplate(market = {}) {
   const topic = escapeHtml(marketTopic(market));
   const category = escapeHtml(market.category || market.marketCategoryLabel || "market");
   const context = escapeHtml(marketContext(market, category));
+  const closing = escapeHtml(marketClosing(market, category));
   const emoji = market.emoji || "\uD83D\uDD25";
   const headline = clean(market.headline || `${emoji} ${topic} is back in focus.`);
 
@@ -79,7 +106,7 @@ export function marketTemplate(market = {}) {
     "",
     context,
     "",
-    "YES or NO?",
+    closing,
   ].join("\n");
 }
 
@@ -87,6 +114,7 @@ export function marketDiscordTemplate(market = {}) {
   const topic = escapeMarkdown(marketTopic(market));
   const category = escapeMarkdown(market.category || market.marketCategoryLabel || "market");
   const context = escapeMarkdown(marketContext(market, category));
+  const closing = escapeMarkdown(marketClosing(market, category));
   const emoji = market.emoji || "🔥";
   const headline = escapeMarkdown(market.headline || `${emoji} ${topic} is back in focus.`);
 
@@ -95,7 +123,7 @@ export function marketDiscordTemplate(market = {}) {
     "",
     context,
     "",
-    "**YES or NO?**",
+    closing,
   ].join("\n");
 }
 

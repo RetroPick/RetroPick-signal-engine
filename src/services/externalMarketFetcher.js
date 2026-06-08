@@ -74,6 +74,7 @@ function topicFromNews(news) {
       title: "Will ETH outperform BTC as rotation returns?",
       context:
         "Traders are watching whether ETH can outperform BTC as rotation returns across major crypto assets.",
+      closing: "Key question: Can ETH outperform BTC as rotation builds?",
     };
   }
 
@@ -83,6 +84,7 @@ function topicFromNews(news) {
       title: "Will Bitcoin continue leading crypto market sentiment?",
       context:
         "Traders are watching whether BTC strength can turn into a broader market recovery.",
+      closing: "Key question: Can BTC strength pull the broader market higher?",
     };
   }
 
@@ -92,6 +94,7 @@ function topicFromNews(news) {
       title: "Will AI-related assets and narratives keep gaining attention?",
       context:
         "Traders are watching whether fresh AI developments can drive another wave of market interest.",
+      closing: "Potential impact: AI momentum could spill into tech and crypto narratives.",
     };
   }
 
@@ -101,17 +104,19 @@ function topicFromNews(news) {
       title: "Will the next macro signal shift market sentiment?",
       context:
         "Traders are watching whether macro data can trigger a stronger risk-on or risk-off move.",
+      closing: "Potential impact: A surprise macro print could shift risk sentiment fast.",
     };
   }
 
   return {
-    headline: `🔥 ${news.marketCategoryLabel || "Market"} momentum is back in focus.`,
-    title: news.title || "Will this market theme continue gaining attention?",
-    context:
-      news.summary ||
-      news.whyItMatters ||
-      "Traders are watching whether this setup can turn into a stronger market move.",
-  };
+      headline: `🔥 ${news.marketCategoryLabel || "Market"} momentum is back in focus.`,
+      title: news.title || "Will this market theme continue gaining attention?",
+      context:
+        news.summary ||
+        news.whyItMatters ||
+        "Traders are watching whether this setup can turn into a stronger market move.",
+      closing: `Market question: Will this ${news.marketCategoryLabel || "market"} theme keep gaining attention?`,
+    };
 }
 
 async function fetchMarketBriefsFromNews({ limit = 5, category = "all" } = {}) {
@@ -128,6 +133,7 @@ async function fetchMarketBriefsFromNews({ limit = 5, category = "all" } = {}) {
       title: brief.title,
       headline: brief.headline,
       context: brief.context,
+      closing: brief.closing,
       category: news.marketCategoryLabel || news.category || "Market",
       marketCategory: news.marketCategory || "general",
       marketCategoryLabel: news.marketCategoryLabel || news.category || "Market",

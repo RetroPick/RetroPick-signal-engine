@@ -119,6 +119,7 @@ document.querySelector("#marketForm").addEventListener("submit", async (event) =
     headline: formData.get("headline"),
     title: formData.get("title"),
     context: formData.get("context"),
+    closing: formData.get("closing"),
     category: formData.get("category"),
     marketType: formData.get("marketType"),
     url: formData.get("url"),
