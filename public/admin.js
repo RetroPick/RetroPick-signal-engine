@@ -116,7 +116,9 @@ document.querySelector("#marketForm").addEventListener("submit", async (event) =
   const formData = new FormData(form);
   const body = {
     marketId: formData.get("marketId"),
+    headline: formData.get("headline"),
     title: formData.get("title"),
+    context: formData.get("context"),
     category: formData.get("category"),
     marketType: formData.get("marketType"),
     url: formData.get("url"),

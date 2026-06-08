@@ -13,66 +13,90 @@ function escapeMarkdown(value) {
   return clean(value).replace(/([\\`*_{}[\]()#+\-.!|>])/g, "\\$1");
 }
 
-function percent(value) {
-  return value ? `${Math.round(Number(value) * 100)}%` : null;
+function trimQuestion(value) {
+  return clean(value)
+    .replace(/^will\s+/i, "")
+    .replace(/\?+$/g, "")
+    .trim();
 }
 
-function number(value) {
-  return value ? Number(value).toLocaleString("en-US") : null;
+function marketTopic(market = {}) {
+  return clean(
+    market.topic ||
+      market.marketTopic ||
+      market.headlineTopic ||
+      trimQuestion(market.title || "This market"),
+    "This market",
+  );
+}
+
+function marketContext(market = {}, category = "market") {
+  return clean(
+    market.context ||
+      market.shortContext ||
+      market.description ||
+      `Traders are watching whether this ${category} setup can turn into a stronger market move.`,
+  );
+}
+
+function newsQuestion(news = {}) {
+  const text = `${news.title || ""} ${news.summary || ""} ${news.description || ""}`.toLowerCase();
+  const category = clean(news.marketCategoryLabel || news.category || "market");
+
+  if (text.includes("bitcoin") || text.includes("btc")) {
+    return clean(news.marketQuestion || news.question || "Will Bitcoin hit a new all-time high before 2027?");
+  }
+
+  if (text.includes("ethereum") || text.includes("eth")) {
+    return clean(news.marketQuestion || news.question || "Will ETH outperform BTC before the next major market rotation?");
+  }
+
+  if (text.includes("fed") || text.includes("inflation") || text.includes("cpi")) {
+    return clean(news.marketQuestion || news.question || "Will the next major macro release shift crypto market sentiment?");
+  }
+
+  if (text.includes("ai") || text.includes("openai") || text.includes("anthropic")) {
+    return clean(news.marketQuestion || news.question || "Will this AI development accelerate market adoption in 2026?");
+  }
+
+  return clean(
+    news.marketQuestion ||
+      news.question ||
+      news.relatedMarket ||
+      `Will this ${category} signal create a measurable move?`,
+  );
 }
 
 export function marketTemplate(market = {}) {
-  const title = escapeHtml(market.title || "New market is live");
-  const category = escapeHtml(market.category || "General");
-  const marketType = escapeHtml(market.marketType || "Prediction");
-  const yesPrice = percent(market.yesPrice);
-  const volume24hr = number(market.volume24hr);
+  const topic = escapeHtml(marketTopic(market));
+  const category = escapeHtml(market.category || market.marketCategoryLabel || "market");
+  const context = escapeHtml(marketContext(market, category));
+  const emoji = market.emoji || "\uD83D\uDD25";
+  const headline = clean(market.headline || `${emoji} ${topic} is back in focus.`);
 
   return [
-    "\uD83D\uDD25 <b>RetroPick Market Brief</b>",
+    escapeHtml(headline),
     "",
-    `<b>${title}</b>`,
+    context,
     "",
-    `Category: ${category}`,
-    `Market Type: ${marketType}`,
-    yesPrice ? `YES Implied Probability: ${yesPrice}` : null,
-    volume24hr ? `24h Market Activity: ${volume24hr}` : null,
-    "",
-    "Why it matters:",
-    `This is a live market signal for ${category} event risk and probability shifts.`,
-    "",
-    "RetroPick note:",
-    "Watch how the implied probability moves before the next resolution window.",
-    "",
-    "Signal only, not financial advice.",
-  ].filter(Boolean).join("\n");
+    "YES or NO?",
+  ].join("\n");
 }
 
 export function marketDiscordTemplate(market = {}) {
-  const title = escapeMarkdown(market.title || "New market is live");
-  const category = escapeMarkdown(market.category || "General");
-  const marketType = escapeMarkdown(market.marketType || "Prediction");
-  const yesPrice = percent(market.yesPrice);
-  const volume24hr = number(market.volume24hr);
+  const topic = escapeMarkdown(marketTopic(market));
+  const category = escapeMarkdown(market.category || market.marketCategoryLabel || "market");
+  const context = escapeMarkdown(marketContext(market, category));
+  const emoji = market.emoji || "🔥";
+  const headline = escapeMarkdown(market.headline || `${emoji} ${topic} is back in focus.`);
 
   return [
-    "🔥 **RetroPick Market Brief**",
+    headline,
     "",
-    `**${title}**`,
+    context,
     "",
-    `Category: ${category}`,
-    `Market Type: ${marketType}`,
-    yesPrice ? `YES Implied Probability: ${yesPrice}` : null,
-    volume24hr ? `24h Market Activity: ${volume24hr}` : null,
-    "",
-    "**Why it matters:**",
-    `This is a live market signal for ${category} event risk and probability shifts.`,
-    "",
-    "**RetroPick note:**",
-    "Watch how the implied probability moves before the next resolution window.",
-    "",
-    "_Signal only, not financial advice._",
-  ].filter(Boolean).join("\n");
+    "**YES or NO?**",
+  ].join("\n");
 }
 
 export function announcementTemplate(announcement = {}) {
@@ -111,52 +135,38 @@ export function announcementDiscordTemplate(announcement = {}) {
 
 export function newsTemplate(news = {}) {
   const title = escapeHtml(news.title || "Market Alpha News");
-  const source = escapeHtml(news.source || "External News");
-  const summary = escapeHtml(news.whyItMatters || news.summary || news.description || "New market-moving update.");
+  const summary = escapeHtml(news.context || news.summary || news.description || news.whyItMatters || "A new market-moving update is developing.");
+  const question = escapeHtml(newsQuestion(news));
   const url = clean(news.url || news.link || "");
-  const category = escapeHtml(news.marketCategoryLabel || news.category || "Market Risk");
 
   return [
-    "\uD83D\uDCF0 <b>RetroPick Daily News</b>",
+    "\u26A1 <b>RetroPick News Signal</b>",
     "",
     `<b>${title}</b>`,
     "",
-    `Category: ${category}`,
-    `Source: ${source}`,
-    "",
-    "Why it matters:",
     summary,
     "",
-    "RetroPick angle:",
-    `Relevant for ${category} prediction-market sentiment and event-risk tracking.`,
+    question,
     "",
-    url ? "Read more:" : null,
     url || null,
   ].filter(Boolean).join("\n");
 }
 
 export function newsDiscordTemplate(news = {}) {
   const title = escapeMarkdown(news.title || "Market Alpha News");
-  const source = escapeMarkdown(news.source || "External News");
-  const summary = escapeMarkdown(news.whyItMatters || news.summary || news.description || "New market-moving update.");
+  const summary = escapeMarkdown(news.context || news.summary || news.description || news.whyItMatters || "A new market-moving update is developing.");
+  const question = escapeMarkdown(newsQuestion(news));
   const url = clean(news.url || news.link || "");
-  const category = escapeMarkdown(news.marketCategoryLabel || news.category || "Market Risk");
 
   return [
-    "📰 **RetroPick Daily News**",
+    "⚡ **RetroPick News Signal**",
     "",
     `**${title}**`,
     "",
-    `Category: ${category}`,
-    `Source: ${source}`,
-    "",
-    "**Why it matters:**",
     summary,
     "",
-    "**RetroPick angle:**",
-    `Relevant for ${category} prediction-market sentiment and event-risk tracking.`,
+    question,
     "",
-    url ? "Read more:" : null,
     url || null,
   ].filter(Boolean).join("\n");
 }

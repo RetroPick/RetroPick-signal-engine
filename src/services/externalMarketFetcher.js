@@ -42,6 +42,10 @@ function normalizePolymarketMarket(market) {
     marketId: `polymarket-${market.id || market.conditionId || market.slug}`,
     externalId: market.id || market.conditionId || market.slug,
     title,
+    context: clean(
+      market.description ||
+        `Traders are watching whether this ${category.label} market can confirm a stronger probability shift.`,
+    ),
     category: category.label,
     marketCategory: category.id,
     marketCategoryLabel: category.label,
