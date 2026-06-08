@@ -85,7 +85,7 @@ function renderMarkets(items) {
   marketList.innerHTML = "";
   previewMarkets = items;
   if (!items.length) {
-    marketList.innerHTML = '<div class="card">No matching external markets found.</div>';
+    marketList.innerHTML = '<div class="card">No matching market briefs found.</div>';
     return;
   }
 
@@ -102,7 +102,7 @@ function renderMarkets(items) {
       </div>
       <div class="button-row">
         <button type="button" data-send-market="${index}">Approve & Send</button>
-        <a href="${item.url}" target="_blank" rel="noreferrer">Open market</a>
+        <a href="${item.url}" target="_blank" rel="noreferrer">Open source</a>
       </div>
     `;
     marketList.append(card);
@@ -139,7 +139,7 @@ document.querySelector("#marketForm").addEventListener("submit", async (event) =
 });
 
 document.querySelector("#fetchMarkets").addEventListener("click", async () => {
-  setStatus("Fetching external market preview...");
+  setStatus("Fetching latest market brief preview...");
   const params = new URLSearchParams({
     category: document.querySelector("#marketCategory").value,
     limit: document.querySelector("#marketLimit").value,
@@ -148,7 +148,7 @@ document.querySelector("#fetchMarkets").addEventListener("click", async () => {
   try {
     const data = await requestJson(`/market/fetch?${params}`);
     renderMarkets(data.markets);
-    setStatus(`Fetched ${data.count} latest external market(s). Review before sending.`);
+    setStatus(`Fetched ${data.count} latest market brief(s). Review before sending.`);
   } catch (error) {
     setStatus(error.message);
   }
@@ -158,7 +158,7 @@ marketList.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-send-market]");
   if (!button) return;
   const item = previewMarkets[Number(button.dataset.sendMarket)];
-  setStatus("Sending approved external market...");
+  setStatus("Sending approved market brief...");
 
   try {
     const data = await requestJson("/market/broadcast", {
@@ -177,7 +177,7 @@ marketList.addEventListener("click", async (event) => {
 });
 
 document.querySelector("#broadcastLatestMarkets").addEventListener("click", async () => {
-  setStatus("Broadcasting latest external market...");
+  setStatus("Broadcasting latest market brief...");
   try {
     const data = await requestJson("/market/jobs/latest", {
       method: "POST",

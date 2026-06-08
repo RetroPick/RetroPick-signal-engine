@@ -44,8 +44,8 @@
             Limit
             <input id="marketLimit" type="number" min="1" max="10" value="3" />
           </label>
-          <button id="fetchMarkets" type="button">Preview Latest Markets</button>
-          <button id="broadcastLatestMarkets" type="button">Broadcast Latest Market</button>
+          <button id="fetchMarkets" type="button">Preview Latest Market Briefs</button>
+          <button id="broadcastLatestMarkets" type="button">Broadcast Latest Market Brief</button>
         </div>
         <div class="panel-grid">
           <form class="form-card" id="marketForm">
@@ -56,7 +56,7 @@
             <label>Context <input name="context" value="Traders are watching whether ETH can outperform BTC as rotation returns across major crypto assets." /></label>
             <label>Category <input name="category" value="Crypto" /></label>
             <label>Market Type <input name="marketType" value="Direction" /></label>
-            <label>Source URL <input name="url" type="url" required value="https://polymarket.com/markets/crypto" /></label>
+            <label>Source URL <input name="url" type="url" required value="https://www.coindesk.com/" /></label>
             <div class="check-row">
               <label><input name="telegram" type="checkbox" checked /> Telegram Market</label>
               <label><input name="discord" type="checkbox" checked /> Discord Market</label>
@@ -65,7 +65,7 @@
             <button type="submit">Send Market</button>
           </form>
           <div>
-            <h2>Approve External Markets</h2>
+            <h2>Approve Market Briefs</h2>
             <div id="marketList" class="list"></div>
           </div>
         </div>
