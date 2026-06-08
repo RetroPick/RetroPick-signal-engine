@@ -49,6 +49,8 @@ function normalizePolymarketMarket(market) {
     marketType: "External Prediction Market",
     source: "Polymarket",
     url: buildPolymarketUrl(market),
+    createdAt: market.createdAt || market.created_at || market.startDate || null,
+    updatedAt: market.updatedAt || market.updated_at || null,
     endDate: market.endDate || market.endDateIso || null,
     volume: toNumber(market.volume || market.volumeNum),
     volume24hr: toNumber(market.volume24hr || market.volume24hrClob),
@@ -64,7 +66,7 @@ async function fetchPolymarketMarkets({ limit = 20 } = {}) {
   url.searchParams.set("active", "true");
   url.searchParams.set("closed", "false");
   url.searchParams.set("limit", String(Math.max(Number(limit) || 20, 10)));
-  url.searchParams.set("order", "volume24hr");
+  url.searchParams.set("order", process.env.MARKET_ORDER || "createdAt");
   url.searchParams.set("ascending", "false");
 
   const response = await fetch(url, {
@@ -113,6 +115,9 @@ export async function fetchExternalMarkets({ limit = 5, category = "all" } = {})
     .filter((market) => market.title && market.url)
     .filter((market) => marketMatchesCategory(market, category))
     .filter((market) => market.relevanceScore >= Number(process.env.MARKET_MIN_RELEVANCE_SCORE || 1))
-    .sort((a, b) => b.volume24hr - a.volume24hr || b.volume - a.volume)
+    .sort((a, b) => {
+      const byCreated = new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      return byCreated || b.volume24hr - a.volume24hr || b.volume - a.volume;
+    })
     .slice(0, Number(limit) || 5);
 }

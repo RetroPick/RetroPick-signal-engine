@@ -13,27 +13,38 @@ function escapeMarkdown(value) {
   return clean(value).replace(/([\\`*_{}[\]()#+\-.!|>])/g, "\\$1");
 }
 
+function percent(value) {
+  return value ? `${Math.round(Number(value) * 100)}%` : null;
+}
+
+function number(value) {
+  return value ? Number(value).toLocaleString("en-US") : null;
+}
+
 export function marketTemplate(market = {}) {
   const title = escapeHtml(market.title || "New market is live");
   const category = escapeHtml(market.category || "General");
   const marketType = escapeHtml(market.marketType || "Prediction");
-  const url = clean(market.url || "");
-  const source = escapeHtml(market.source || "External Market");
-  const yesPrice = market.yesPrice ? `${Math.round(Number(market.yesPrice) * 100)}%` : null;
+  const yesPrice = percent(market.yesPrice);
+  const volume24hr = number(market.volume24hr);
 
   return [
-    "\uD83D\uDD25 <b>Market Signal</b>",
+    "\uD83D\uDD25 <b>RetroPick Market Brief</b>",
     "",
     `<b>${title}</b>`,
     "",
-    `Source: ${source}`,
     `Category: ${category}`,
-    `Type: ${marketType}`,
-    yesPrice ? `YES implied price: ${yesPrice}` : null,
-    market.volume24hr ? `24h Volume: ${Number(market.volume24hr).toLocaleString("en-US")}` : null,
+    `Market Type: ${marketType}`,
+    yesPrice ? `YES Implied Probability: ${yesPrice}` : null,
+    volume24hr ? `24h Market Activity: ${volume24hr}` : null,
     "",
-    url ? "View market:" : null,
-    url || null,
+    "Why it matters:",
+    `This is a live market signal for ${category} event risk and probability shifts.`,
+    "",
+    "RetroPick note:",
+    "Watch how the implied probability moves before the next resolution window.",
+    "",
+    "Signal only, not financial advice.",
   ].filter(Boolean).join("\n");
 }
 
@@ -41,30 +52,33 @@ export function marketDiscordTemplate(market = {}) {
   const title = escapeMarkdown(market.title || "New market is live");
   const category = escapeMarkdown(market.category || "General");
   const marketType = escapeMarkdown(market.marketType || "Prediction");
-  const url = clean(market.url || "");
-  const source = escapeMarkdown(market.source || "External Market");
-  const yesPrice = market.yesPrice ? `${Math.round(Number(market.yesPrice) * 100)}%` : null;
+  const yesPrice = percent(market.yesPrice);
+  const volume24hr = number(market.volume24hr);
 
   return [
-    "🔥 **Market Signal**",
+    "🔥 **RetroPick Market Brief**",
     "",
     `**${title}**`,
     "",
-    `Source: ${source}`,
     `Category: ${category}`,
-    `Type: ${marketType}`,
-    yesPrice ? `YES implied price: ${yesPrice}` : null,
-    market.volume24hr ? `24h Volume: ${Number(market.volume24hr).toLocaleString("en-US")}` : null,
+    `Market Type: ${marketType}`,
+    yesPrice ? `YES Implied Probability: ${yesPrice}` : null,
+    volume24hr ? `24h Market Activity: ${volume24hr}` : null,
     "",
-    url ? "View market:" : null,
-    url || null,
+    "**Why it matters:**",
+    `This is a live market signal for ${category} event risk and probability shifts.`,
+    "",
+    "**RetroPick note:**",
+    "Watch how the implied probability moves before the next resolution window.",
+    "",
+    "_Signal only, not financial advice._",
   ].filter(Boolean).join("\n");
 }
 
 export function announcementTemplate(announcement = {}) {
   const title = escapeHtml(announcement.title || "RetroPick Update");
   const body = escapeHtml(announcement.body || "New update from RetroPick.");
-  const url = clean(announcement.url || "https://retropick-v1.vercel.app");
+  const url = clean(announcement.url || "");
 
   return [
     "\u26A1 <b>RetroPick Update</b>",
@@ -73,15 +87,15 @@ export function announcementTemplate(announcement = {}) {
     "",
     body,
     "",
-    "Open RetroPick:",
-    url,
-  ].join("\n");
+    url ? "Read more:" : null,
+    url || null,
+  ].filter(Boolean).join("\n");
 }
 
 export function announcementDiscordTemplate(announcement = {}) {
   const title = escapeMarkdown(announcement.title || "RetroPick Update");
   const body = escapeMarkdown(announcement.body || "New update from RetroPick.");
-  const url = clean(announcement.url || "https://retropick-v1.vercel.app");
+  const url = clean(announcement.url || "");
 
   return [
     "⚡ **RetroPick Update**",
@@ -90,9 +104,9 @@ export function announcementDiscordTemplate(announcement = {}) {
     "",
     body,
     "",
-    "Open RetroPick:",
-    url,
-  ].join("\n");
+    url ? "Read more:" : null,
+    url || null,
+  ].filter(Boolean).join("\n");
 }
 
 export function newsTemplate(news = {}) {
@@ -101,28 +115,24 @@ export function newsTemplate(news = {}) {
   const summary = escapeHtml(news.whyItMatters || news.summary || news.description || "New market-moving update.");
   const url = clean(news.url || news.link || "");
   const category = escapeHtml(news.marketCategoryLabel || news.category || "Market Risk");
-  const score = Number(news.relevanceScore || 0);
 
   return [
-    "\uD83D\uDCF0 <b>RetroPick Market Alpha</b>",
+    "\uD83D\uDCF0 <b>RetroPick Daily News</b>",
     "",
     `<b>${title}</b>`,
     "",
+    `Category: ${category}`,
     `Source: ${source}`,
-    `RetroPick Category: ${category}`,
-    `Relevance Score: ${score}`,
     "",
-    "Prediction-market angle:",
+    "Why it matters:",
     summary,
     "",
-    "Possible market idea:",
-    `Will this ${category} event create a measurable outcome before the next resolution window?`,
-    "",
-    "Note: signal only, not financial advice.",
+    "RetroPick angle:",
+    `Relevant for ${category} prediction-market sentiment and event-risk tracking.`,
     "",
     url ? "Read more:" : null,
     url || null,
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 }
 
 export function newsDiscordTemplate(news = {}) {
@@ -131,24 +141,20 @@ export function newsDiscordTemplate(news = {}) {
   const summary = escapeMarkdown(news.whyItMatters || news.summary || news.description || "New market-moving update.");
   const url = clean(news.url || news.link || "");
   const category = escapeMarkdown(news.marketCategoryLabel || news.category || "Market Risk");
-  const score = Number(news.relevanceScore || 0);
 
   return [
-    "📰 **RetroPick Market Alpha**",
+    "📰 **RetroPick Daily News**",
     "",
     `**${title}**`,
     "",
+    `Category: ${category}`,
     `Source: ${source}`,
-    `RetroPick Category: ${category}`,
-    `Relevance Score: ${score}`,
     "",
-    "**Prediction-market angle:**",
+    "**Why it matters:**",
     summary,
     "",
-    "**Possible market idea:**",
-    `Will this ${category} event create a measurable outcome before the next resolution window?`,
-    "",
-    "_Signal only, not financial advice._",
+    "**RetroPick angle:**",
+    `Relevant for ${category} prediction-market sentiment and event-risk tracking.`,
     "",
     url ? "Read more:" : null,
     url || null,

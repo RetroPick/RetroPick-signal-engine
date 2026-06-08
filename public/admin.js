@@ -146,7 +146,7 @@ document.querySelector("#fetchMarkets").addEventListener("click", async () => {
   try {
     const data = await requestJson(`/market/fetch?${params}`);
     renderMarkets(data.markets);
-    setStatus(`Fetched ${data.count} external market(s). Review before sending.`);
+    setStatus(`Fetched ${data.count} latest external market(s). Review before sending.`);
   } catch (error) {
     setStatus(error.message);
   }
@@ -175,7 +175,7 @@ marketList.addEventListener("click", async (event) => {
 });
 
 document.querySelector("#broadcastLatestMarkets").addEventListener("click", async () => {
-  setStatus("Running automatic fresh-market job...");
+  setStatus("Broadcasting latest external market...");
   try {
     const data = await requestJson("/market/jobs/latest", {
       method: "POST",
@@ -186,7 +186,7 @@ document.querySelector("#broadcastLatestMarkets").addEventListener("click", asyn
       }),
     });
     marketResult.textContent = JSON.stringify(data, null, 2);
-    setStatus("Fresh-market job finished.");
+    setStatus("Latest-market broadcast finished.");
   } catch (error) {
     setStatus(error.message);
   }
@@ -202,7 +202,7 @@ document.querySelector("#fetchNews").addEventListener("click", async () => {
   try {
     const data = await requestJson(`/news/fetch?${params}`);
     renderNews(data.news);
-    setStatus(`Fetched ${data.count} news item(s). Review before sending.`);
+    setStatus(`Fetched ${data.count} latest news item(s). Review before sending.`);
   } catch (error) {
     setStatus(error.message);
   }
@@ -231,7 +231,7 @@ newsList.addEventListener("click", async (event) => {
 });
 
 document.querySelector("#broadcastLatest").addEventListener("click", async () => {
-  setStatus("Running automatic fresh-news job...");
+  setStatus("Broadcasting latest news...");
   try {
     const data = await requestJson("/news/jobs/latest", {
       method: "POST",
@@ -242,7 +242,7 @@ document.querySelector("#broadcastLatest").addEventListener("click", async () =>
       }),
     });
     newsResult.textContent = JSON.stringify(data, null, 2);
-    setStatus("Fresh-news job finished.");
+    setStatus("Latest-news broadcast finished.");
   } catch (error) {
     setStatus(error.message);
   }

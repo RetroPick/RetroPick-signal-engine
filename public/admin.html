@@ -44,8 +44,8 @@
             Limit
             <input id="marketLimit" type="number" min="1" max="10" value="3" />
           </label>
-          <button id="fetchMarkets" type="button">Preview External Markets</button>
-          <button id="broadcastLatestMarkets" type="button">Auto Broadcast Fresh</button>
+          <button id="fetchMarkets" type="button">Preview Latest Markets</button>
+          <button id="broadcastLatestMarkets" type="button">Broadcast Latest Market</button>
         </div>
         <div class="panel-grid">
           <form class="form-card" id="marketForm">
@@ -54,7 +54,7 @@
             <label>Title <input name="title" required value="Will this manual market signal be delivered?" /></label>
             <label>Category <input name="category" value="Crypto" /></label>
             <label>Market Type <input name="marketType" value="Direction" /></label>
-            <label>URL <input name="url" type="url" required value="https://retropick-v1.vercel.app/app/markets/manual-market-test" /></label>
+            <label>Source URL <input name="url" type="url" required value="https://polymarket.com/markets/crypto" /></label>
             <div class="check-row">
               <label><input name="telegram" type="checkbox" checked /> Telegram Market</label>
               <label><input name="discord" type="checkbox" checked /> Discord Market</label>
@@ -87,8 +87,8 @@
             Limit
             <input id="limit" type="number" min="1" max="10" value="3" />
           </label>
-          <button id="fetchNews" type="button">Preview News</button>
-          <button id="broadcastLatest" type="button">Auto Broadcast Fresh</button>
+          <button id="fetchNews" type="button">Preview Latest News</button>
+          <button id="broadcastLatest" type="button">Broadcast Latest News</button>
         </div>
         <div class="panel-grid">
           <div>
