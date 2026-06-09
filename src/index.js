@@ -10,7 +10,7 @@ import { fetchExternalNews } from "./services/newsFetcher.js";
 import { fetchExternalMarkets } from "./services/externalMarketFetcher.js";
 import { hasNewsBeenSent, saveNewsDelivery } from "./services/newsLog.js";
 import { getDeliveries } from "./services/deliveryLog.js";
-import { hasMarketBeenSent, saveMarketDelivery } from "./services/marketLog.js";
+import { hasMarketBeenSent, hasMarketTitleBeenSent, saveMarketDelivery } from "./services/marketLog.js";
 import { classifyNewsItem, newsCategories } from "./config/newsCategories.js";
 import { startMarketScheduler } from "./jobs/marketScheduler.js";
 import { startNewsScheduler } from "./jobs/newsScheduler.js";
@@ -123,7 +123,11 @@ async function dispatchMarket(market, platforms = ["telegram", "discord"], { ski
   for (const platform of selected) {
     if (!["telegram", "discord"].includes(platform)) continue;
 
-    if (skipDuplicates && (await hasMarketBeenSent(market.marketId, platform))) {
+    if (
+      skipDuplicates &&
+      ((await hasMarketBeenSent(market.marketId, platform)) ||
+        (await hasMarketTitleBeenSent(market.title, platform)))
+    ) {
       results.push({ platform, status: "skipped", reason: "duplicate" });
       continue;
     }

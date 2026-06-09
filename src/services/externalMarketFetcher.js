@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { classifyNewsItem } from "../config/newsCategories.js";
 import { fetchExternalNews, parseList } from "./newsFetcher.js";
 
@@ -18,6 +19,13 @@ function parseJsonValue(value, fallback = []) {
 function toNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : 0;
+}
+
+function stableKey(value) {
+  return createHash("sha256")
+    .update(String(value).trim().toLowerCase())
+    .digest("hex")
+    .slice(0, 24);
 }
 
 function buildPolymarketUrl(market) {
@@ -127,8 +135,15 @@ async function fetchMarketBriefsFromNews({ limit = 5, category = "all" } = {}) {
 
   return newsItems.slice(0, Number(limit) || 5).map((news) => {
     const brief = topicFromNews(news);
+    const contentKey = stableKey([
+      brief.headline,
+      brief.context,
+      brief.closing,
+      news.marketCategory || "general",
+    ].join("\n"));
+
     return {
-      marketId: `market-news-${news.id || Buffer.from(news.url).toString("base64url").slice(0, 32)}`,
+      marketId: `market-brief-${contentKey}`,
       externalId: news.id || news.url,
       title: brief.title,
       headline: brief.headline,

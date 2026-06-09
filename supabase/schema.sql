@@ -22,6 +22,10 @@ create index if not exists signal_deliveries_lookup_idx
 create index if not exists signal_deliveries_sent_at_idx
   on public.signal_deliveries (delivery_type, sent_at desc);
 
+create unique index if not exists signal_deliveries_sent_unique_idx
+  on public.signal_deliveries (delivery_type, delivery_key, platform)
+  where status = 'sent';
+
 alter table public.signal_deliveries enable row level security;
 
 create policy "service role can manage signal deliveries"
