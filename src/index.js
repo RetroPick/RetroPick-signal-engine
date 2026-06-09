@@ -24,6 +24,7 @@ import {
 
 const app = express();
 const port = Number(process.env.PORT || 4174);
+const host = process.env.HOST || "0.0.0.0";
 
 app.use(cors());
 app.use(express.json({ limit: "256kb" }));
@@ -419,12 +420,15 @@ app.use((error, _req, res, _next) => {
 
 assertConfig();
 
-const server = app.listen(port, () => {
+const displayHost = host === "0.0.0.0" ? "localhost" : host;
+
+const server = app.listen(port, host, () => {
   console.log("");
-  console.log(`RetroPick Signal Engine running at http://127.0.0.1:${port}`);
-  console.log(`Website: http://127.0.0.1:${port}/`);
-  console.log(`Admin:   http://127.0.0.1:${port}/admin.html`);
-  console.log(`Health:  http://127.0.0.1:${port}/health`);
+  console.log(`RetroPick Signal Engine running at http://${displayHost}:${port}`);
+  console.log(`Website: http://${displayHost}:${port}/`);
+  console.log(`Admin:   http://${displayHost}:${port}/admin.html`);
+  console.log(`Health:  http://${displayHost}:${port}/health`);
+  console.log(`Host:    ${host}`);
   console.log("");
   startNewsScheduler(runNewsJob);
 });
@@ -434,7 +438,7 @@ server.on("error", (error) => {
     console.error("");
     console.error(`Port ${port} is already in use.`);
     console.error("Stop the old process or run with another port:");
-    console.error(`  PORT=4175 npm run dev`);
+    console.error(`  HOST=0.0.0.0 PORT=4175 npm run dev`);
     console.error("");
     process.exit(1);
   }
