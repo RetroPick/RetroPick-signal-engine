@@ -8,9 +8,9 @@ import { sendDiscordMarketMessage, sendDiscordNewsMessage } from "./services/dis
 import { sendTelegramMarketMessage, sendTelegramNewsMessage } from "./services/telegram.js";
 import { fetchExternalNews } from "./services/newsFetcher.js";
 import { fetchExternalMarkets } from "./services/externalMarketFetcher.js";
-import { hasNewsBeenSent, hasNewsTitleBeenSent, saveNewsDelivery } from "./services/newsLog.js";
-import { getDeliveries } from "./services/deliveryLog.js";
-import { hasMarketBeenSent, hasMarketTitleBeenSent, saveMarketDelivery } from "./services/marketLog.js";
+import { hasNewsBeenSent, hasNewsTitleBeenSent } from "./services/newsLog.js";
+import { claimDelivery, finishDelivery, getDeliveries } from "./services/deliveryLog.js";
+import { hasMarketBeenSent, hasMarketTitleBeenSent } from "./services/marketLog.js";
 import { classifyNewsItem, newsCategories } from "./config/newsCategories.js";
 import { startMarketScheduler } from "./jobs/marketScheduler.js";
 import { startNewsScheduler } from "./jobs/newsScheduler.js";
@@ -132,16 +132,57 @@ async function dispatchMarket(market, platforms = ["telegram", "discord"], { ski
       continue;
     }
 
+    const message = platform === "telegram" ? telegramMessage : discordMessage;
+    const claimed = await claimDelivery("market-log.json", {
+      key: market.marketId,
+      market_id: market.marketId,
+      title: market.title,
+      category: market.category || null,
+      platform,
+      message,
+    });
+
+    if (!claimed) {
+      results.push({ platform, status: "skipped", reason: "duplicate" });
+      continue;
+    }
+
     try {
       if (platform === "telegram") {
         await sendTelegramMarketMessage(telegramMessage);
       } else {
         await sendDiscordMarketMessage(discordMessage);
       }
-      await saveMarketDelivery({ market, platform, status: "sent", message: platform === "telegram" ? telegramMessage : discordMessage });
+      await finishDelivery("market-log.json", market.marketId, platform, {
+        status: "sent",
+        message,
+        payload: {
+          key: market.marketId,
+          market_id: market.marketId,
+          title: market.title,
+          category: market.category || null,
+          platform,
+          status: "sent",
+          message,
+        },
+      });
       results.push({ platform, status: "sent" });
     } catch (error) {
-      await saveMarketDelivery({ market, platform, status: "failed", message: platform === "telegram" ? telegramMessage : discordMessage, error: error.message });
+      await finishDelivery("market-log.json", market.marketId, platform, {
+        status: "failed",
+        message,
+        error_message: error.message,
+        payload: {
+          key: market.marketId,
+          market_id: market.marketId,
+          title: market.title,
+          category: market.category || null,
+          platform,
+          status: "failed",
+          message,
+          error_message: error.message,
+        },
+      });
       results.push({ platform, status: "failed", error: error.message });
     }
   }
@@ -167,16 +208,63 @@ async function dispatchNews(news, platforms = ["telegram", "discord"], { skipDup
       continue;
     }
 
+    const message = platform === "telegram" ? telegramMessage : discordMessage;
+    const claimed = await claimDelivery("news-log.json", {
+      key: news.url,
+      url: news.url,
+      title: news.title,
+      source: news.source,
+      market_category: news.marketCategory || null,
+      relevance_score: news.relevanceScore || 0,
+      platform,
+      message,
+    });
+
+    if (!claimed) {
+      results.push({ platform, status: "skipped", reason: "duplicate" });
+      continue;
+    }
+
     try {
       if (platform === "telegram") {
         await sendTelegramNewsMessage(telegramMessage);
       } else {
         await sendDiscordNewsMessage(discordMessage);
       }
-      await saveNewsDelivery({ news, platform, status: "sent", message: platform === "telegram" ? telegramMessage : discordMessage });
+      await finishDelivery("news-log.json", news.url, platform, {
+        status: "sent",
+        message,
+        payload: {
+          key: news.url,
+          url: news.url,
+          title: news.title,
+          source: news.source,
+          market_category: news.marketCategory || null,
+          relevance_score: news.relevanceScore || 0,
+          platform,
+          status: "sent",
+          message,
+        },
+      });
       results.push({ platform, status: "sent" });
     } catch (error) {
-      await saveNewsDelivery({ news, platform, status: "failed", message: platform === "telegram" ? telegramMessage : discordMessage, error: error.message });
+      await finishDelivery("news-log.json", news.url, platform, {
+        status: "failed",
+        message,
+        error_message: error.message,
+        payload: {
+          key: news.url,
+          url: news.url,
+          title: news.title,
+          source: news.source,
+          market_category: news.marketCategory || null,
+          relevance_score: news.relevanceScore || 0,
+          platform,
+          status: "failed",
+          message,
+          error_message: error.message,
+        },
+      });
       results.push({ platform, status: "failed", error: error.message });
     }
   }
