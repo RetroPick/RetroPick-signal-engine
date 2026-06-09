@@ -12,6 +12,24 @@ npm start
 
 Isi `.env` dengan token Telegram, chat id Telegram, webhook Discord, dan `BROADCAST_SECRET`.
 
+Supabase opsional tapi direkomendasikan untuk deploy. Kalau `SUPABASE_URL` dan
+`SUPABASE_SERVICE_ROLE_KEY` diisi, duplicate log dan delivery log otomatis disimpan
+di Supabase. Kalau kosong, app fallback ke file lokal `data/*.json`.
+
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=replace_this
+SUPABASE_DELIVERIES_TABLE=signal_deliveries
+```
+
+Jalankan schema di Supabase SQL Editor:
+
+```sql
+-- supabase/schema.sql
+```
+
+Pakai service role key hanya di backend/server env, jangan pernah taruh di frontend.
+
 Market dan news memakai bot/webhook terpisah:
 
 ```env
@@ -63,7 +81,7 @@ Angka `2` berasal dari link topic seperti `https://t.me/RetroPickMarket/2`.
 Admin dashboard lokal:
 
 ```text
-http://127.0.0.1:4174/admin.html
+http://localhost:4174/admin.html
 ```
 
 Endpoint lama `/broadcast/*`, `/jobs/news/latest`, dan `/logs/*` masih dipertahankan sebagai alias kompatibilitas. Untuk flow baru, pakai endpoint `/market/*` dan `/news/*`.

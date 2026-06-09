@@ -14,6 +14,7 @@ import { hasMarketBeenSent, saveMarketDelivery } from "./services/marketLog.js";
 import { classifyNewsItem, newsCategories } from "./config/newsCategories.js";
 import { startMarketScheduler } from "./jobs/marketScheduler.js";
 import { startNewsScheduler } from "./jobs/newsScheduler.js";
+import { isSupabaseConfigured } from "./services/supabaseClient.js";
 import {
   announcementDiscordTemplate,
   announcementTemplate,
@@ -220,6 +221,7 @@ app.get("/health", (_req, res) => {
     newsTelegramChat: process.env.TELEGRAM_NEWS_CHAT_ID || null,
     marketDiscordConfigured: Boolean(process.env.DISCORD_MARKET_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL),
     newsDiscordConfigured: Boolean(process.env.DISCORD_NEWS_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL),
+    storage: isSupabaseConfigured ? "supabase" : "local-json",
   });
 });
 
