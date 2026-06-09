@@ -70,7 +70,7 @@ function topicFromNews(news) {
 
   if (text.includes("ethereum") || text.includes("eth")) {
     return {
-      headline: "📈 ETH momentum is heating up.",
+      headline: "\u{1F4C8} ETH momentum is heating up.",
       title: "Will ETH outperform BTC as rotation returns?",
       context:
         "Traders are watching whether ETH can outperform BTC as rotation returns across major crypto assets.",
@@ -80,7 +80,7 @@ function topicFromNews(news) {
 
   if (text.includes("bitcoin") || text.includes("btc")) {
     return {
-      headline: "🔥 Bitcoin momentum is back in focus.",
+      headline: "\u{1F525} Bitcoin momentum is back in focus.",
       title: "Will Bitcoin continue leading crypto market sentiment?",
       context:
         "Traders are watching whether BTC strength can turn into a broader market recovery.",
@@ -90,7 +90,7 @@ function topicFromNews(news) {
 
   if (text.includes("ai") || text.includes("openai") || text.includes("anthropic")) {
     return {
-      headline: "🔥 AI market momentum is back in focus.",
+      headline: "\u{1F525} AI market momentum is back in focus.",
       title: "Will AI-related assets and narratives keep gaining attention?",
       context:
         "Traders are watching whether fresh AI developments can drive another wave of market interest.",
@@ -100,7 +100,7 @@ function topicFromNews(news) {
 
   if (text.includes("fed") || text.includes("inflation") || text.includes("cpi")) {
     return {
-      headline: "🔥 Macro risk is back in focus.",
+      headline: "\u{1F525} Macro risk is back in focus.",
       title: "Will the next macro signal shift market sentiment?",
       context:
         "Traders are watching whether macro data can trigger a stronger risk-on or risk-off move.",
@@ -109,7 +109,7 @@ function topicFromNews(news) {
   }
 
   return {
-      headline: `🔥 ${news.marketCategoryLabel || "Market"} momentum is back in focus.`,
+      headline: `\u{1F525} ${news.marketCategoryLabel || "Market"} momentum is back in focus.`,
       title: news.title || "Will this market theme continue gaining attention?",
       context:
         news.summary ||
