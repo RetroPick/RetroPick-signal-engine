@@ -7,7 +7,7 @@ async function sendTelegramMessage({ text, token, chatId, messageThreadId, label
     chat_id: chatId,
     text,
     parse_mode: "HTML",
-    disable_web_page_preview: false,
+    disable_web_page_preview: process.env.TELEGRAM_DISABLE_WEB_PAGE_PREVIEW !== "false",
   };
 
   if (messageThreadId) {

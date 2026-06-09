@@ -8,7 +8,7 @@ import { sendDiscordMarketMessage, sendDiscordNewsMessage } from "./services/dis
 import { sendTelegramMarketMessage, sendTelegramNewsMessage } from "./services/telegram.js";
 import { fetchExternalNews } from "./services/newsFetcher.js";
 import { fetchExternalMarkets } from "./services/externalMarketFetcher.js";
-import { hasNewsBeenSent, saveNewsDelivery } from "./services/newsLog.js";
+import { hasNewsBeenSent, hasNewsTitleBeenSent, saveNewsDelivery } from "./services/newsLog.js";
 import { getDeliveries } from "./services/deliveryLog.js";
 import { hasMarketBeenSent, hasMarketTitleBeenSent, saveMarketDelivery } from "./services/marketLog.js";
 import { classifyNewsItem, newsCategories } from "./config/newsCategories.js";
@@ -158,7 +158,11 @@ async function dispatchNews(news, platforms = ["telegram", "discord"], { skipDup
   for (const platform of selected) {
     if (!["telegram", "discord"].includes(platform)) continue;
 
-    if (skipDuplicates && (await hasNewsBeenSent(news.url, platform))) {
+    if (
+      skipDuplicates &&
+      ((await hasNewsBeenSent(news.url, platform)) ||
+        (await hasNewsTitleBeenSent(news.title, platform)))
+    ) {
       results.push({ platform, status: "skipped", reason: "duplicate" });
       continue;
     }
