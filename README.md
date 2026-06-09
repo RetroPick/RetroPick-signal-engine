@@ -165,7 +165,7 @@ ENABLE_MARKET_CRON=true
 
 Default jadwal:
 
-- News: 1 berita terbaru setiap 60 menit
+- News: 2 berita terbaru setiap 60 menit
 - Market: 1 market brief terbaru setiap 60 menit
 
 Setting cron eksplisit:
@@ -173,7 +173,7 @@ Setting cron eksplisit:
 ```env
 CRON_NEWS_SCHEDULE=0 * * * *
 CRON_NEWS_CATEGORY=all
-CRON_NEWS_LIMIT=1
+CRON_NEWS_LIMIT=2
 
 CRON_MARKET_SCHEDULE=0 * * * *
 CRON_MARKET_CATEGORY=all
