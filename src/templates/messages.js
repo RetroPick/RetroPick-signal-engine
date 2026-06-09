@@ -20,6 +20,22 @@ function trimQuestion(value) {
     .trim();
 }
 
+function signalEmoji(item = {}, fallback = "🔥") {
+  const text = `${item.emoji || ""} ${item.category || ""} ${item.marketCategoryLabel || ""} ${item.title || ""} ${item.headline || ""} ${item.summary || ""} ${item.description || ""}`.toLowerCase();
+
+  if (item.emoji) return item.emoji;
+  if (text.includes("bitcoin") || text.includes("btc")) return "₿";
+  if (text.includes("ethereum") || text.includes("eth")) return "📈";
+  if (text.includes("crypto") || text.includes("defi") || text.includes("token")) return "💎";
+  if (text.includes("fed") || text.includes("cpi") || text.includes("inflation") || text.includes("macro") || text.includes("economics")) return "🏦";
+  if (text.includes("stock") || text.includes("earnings") || text.includes("financial") || text.includes("market")) return "📊";
+  if (text.includes("ai") || text.includes("openai") || text.includes("anthropic") || text.includes("tech")) return "🤖";
+  if (text.includes("science") || text.includes("nasa") || text.includes("space")) return "🔬";
+  if (text.includes("climate") || text.includes("weather") || text.includes("storm") || text.includes("rain") || text.includes("temperature")) return "🌦️";
+
+  return fallback;
+}
+
 function marketTopic(market = {}) {
   return clean(
     market.topic ||
@@ -98,7 +114,7 @@ export function marketTemplate(market = {}) {
   const category = escapeHtml(market.category || market.marketCategoryLabel || "market");
   const context = escapeHtml(marketContext(market, category));
   const closing = escapeHtml(marketClosing(market, category));
-  const emoji = market.emoji || "\uD83D\uDD25";
+  const emoji = signalEmoji(market, "🔥");
   const headline = clean(market.headline || `${emoji} ${topic} is back in focus.`);
 
   return [
@@ -115,7 +131,7 @@ export function marketDiscordTemplate(market = {}) {
   const category = escapeMarkdown(market.category || market.marketCategoryLabel || "market");
   const context = escapeMarkdown(marketContext(market, category));
   const closing = escapeMarkdown(marketClosing(market, category));
-  const emoji = market.emoji || "🔥";
+  const emoji = signalEmoji(market, "🔥");
   const headline = escapeMarkdown(market.headline || `${emoji} ${topic} is back in focus.`);
 
   return [
@@ -133,7 +149,7 @@ export function announcementTemplate(announcement = {}) {
   const url = clean(announcement.url || "");
 
   return [
-    "\u26A1 <b>RetroPick Update</b>",
+    "⚡ <b>RetroPick Update</b>",
     "",
     `<b>${title}</b>`,
     "",
@@ -166,9 +182,10 @@ export function newsTemplate(news = {}) {
   const summary = escapeHtml(news.context || news.summary || news.description || news.whyItMatters || "A new market-moving update is developing.");
   const question = escapeHtml(newsQuestion(news));
   const url = clean(news.url || news.link || "");
+  const emoji = signalEmoji(news, "⚡");
 
   return [
-    "\u26A1 <b>RetroPick News Signal</b>",
+    `${emoji} <b>RetroPick News Signal</b>`,
     "",
     `<b>${title}</b>`,
     "",
@@ -185,9 +202,10 @@ export function newsDiscordTemplate(news = {}) {
   const summary = escapeMarkdown(news.context || news.summary || news.description || news.whyItMatters || "A new market-moving update is developing.");
   const question = escapeMarkdown(newsQuestion(news));
   const url = clean(news.url || news.link || "");
+  const emoji = signalEmoji(news, "⚡");
 
   return [
-    "⚡ **RetroPick News Signal**",
+    `${emoji} **RetroPick News Signal**`,
     "",
     `**${title}**`,
     "",
