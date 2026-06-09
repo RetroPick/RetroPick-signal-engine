@@ -12,6 +12,7 @@ import { hasNewsBeenSent, saveNewsDelivery } from "./services/newsLog.js";
 import { getDeliveries } from "./services/deliveryLog.js";
 import { hasMarketBeenSent, saveMarketDelivery } from "./services/marketLog.js";
 import { classifyNewsItem, newsCategories } from "./config/newsCategories.js";
+import { startMarketScheduler } from "./jobs/marketScheduler.js";
 import { startNewsScheduler } from "./jobs/newsScheduler.js";
 import {
   announcementDiscordTemplate,
@@ -435,6 +436,7 @@ const server = app.listen(port, host, () => {
   console.log(`Host:    ${host}`);
   console.log("");
   startNewsScheduler(runNewsJob);
+  startMarketScheduler(runMarketJob);
 });
 
 server.on("error", (error) => {

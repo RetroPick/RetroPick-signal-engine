@@ -1,11 +1,11 @@
 import cron from "node-cron";
 
 const schedules = [
-  ["crypto", process.env.CRON_NEWS_CRYPTO || "*/15 * * * *"],
-  ["economics", process.env.CRON_NEWS_ECONOMICS || "*/30 * * * *"],
-  ["financials", process.env.CRON_NEWS_FINANCIALS || "*/30 * * * *"],
+  ["crypto", process.env.CRON_NEWS_CRYPTO || "0 * * * *"],
+  ["economics", process.env.CRON_NEWS_ECONOMICS || "0 * * * *"],
+  ["financials", process.env.CRON_NEWS_FINANCIALS || "0 * * * *"],
   ["tech_science", process.env.CRON_NEWS_TECH_SCIENCE || "0 * * * *"],
-  ["climate", process.env.CRON_NEWS_CLIMATE || "0 */2 * * *"],
+  ["climate", process.env.CRON_NEWS_CLIMATE || "0 * * * *"],
 ];
 
 export function startNewsScheduler(runNewsJob) {
