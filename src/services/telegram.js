@@ -1,4 +1,9 @@
-async function sendTelegramMessage({ text, token, chatId, messageThreadId, label }) {
+function previewDisabled(value, fallback = true) {
+  if (value === undefined) return fallback;
+  return String(value).toLowerCase() !== "false";
+}
+
+async function sendTelegramMessage({ text, token, chatId, messageThreadId, label, disableWebPagePreview = true }) {
   if (!token || !chatId) {
     throw new Error(`${label} Telegram config is incomplete`);
   }
@@ -7,7 +12,7 @@ async function sendTelegramMessage({ text, token, chatId, messageThreadId, label
     chat_id: chatId,
     text,
     parse_mode: "HTML",
-    disable_web_page_preview: process.env.TELEGRAM_DISABLE_WEB_PAGE_PREVIEW !== "false",
+    disable_web_page_preview: disableWebPagePreview,
   };
 
   if (messageThreadId) {
@@ -36,6 +41,10 @@ export async function sendTelegramMarketMessage(text) {
     token: process.env.TELEGRAM_MARKET_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN,
     chatId: process.env.TELEGRAM_MARKET_CHAT_ID || process.env.TELEGRAM_CHAT_ID,
     messageThreadId: process.env.TELEGRAM_MARKET_THREAD_ID || process.env.TELEGRAM_MESSAGE_THREAD_ID,
+    disableWebPagePreview: previewDisabled(
+      process.env.TELEGRAM_MARKET_DISABLE_WEB_PAGE_PREVIEW,
+      previewDisabled(process.env.TELEGRAM_DISABLE_WEB_PAGE_PREVIEW, true),
+    ),
     label: "Market",
   });
 }
@@ -46,6 +55,10 @@ export async function sendTelegramNewsMessage(text) {
     token: process.env.TELEGRAM_NEWS_BOT_TOKEN,
     chatId: process.env.TELEGRAM_NEWS_CHAT_ID || process.env.TELEGRAM_CHAT_ID,
     messageThreadId: process.env.TELEGRAM_NEWS_THREAD_ID,
+    disableWebPagePreview: previewDisabled(
+      process.env.TELEGRAM_NEWS_DISABLE_WEB_PAGE_PREVIEW,
+      previewDisabled(process.env.TELEGRAM_DISABLE_WEB_PAGE_PREVIEW, false),
+    ),
     label: "News",
   });
 }
