@@ -167,6 +167,7 @@ Default jadwal:
 
 - News: 2 berita terbaru setiap 60 menit
 - Market: 1 market brief terbaru setiap 60 menit
+- Daily cap: maksimal 48 news dan 24 market per hari, dihitung timezone UTC+7
 
 Setting cron eksplisit:
 
@@ -174,10 +175,13 @@ Setting cron eksplisit:
 CRON_NEWS_SCHEDULE=0 * * * *
 CRON_NEWS_CATEGORY=all
 CRON_NEWS_LIMIT=2
+DAILY_NEWS_LIMIT=48
 
 CRON_MARKET_SCHEDULE=0 * * * *
 CRON_MARKET_CATEGORY=all
 CRON_MARKET_LIMIT=1
+DAILY_MARKET_LIMIT=24
+DAILY_CAP_TIMEZONE_OFFSET_HOURS=7
 ```
 
 Kirim satu berita manual:

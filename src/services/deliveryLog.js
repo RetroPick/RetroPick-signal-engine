@@ -67,6 +67,40 @@ function isUniqueViolation(error) {
   return error?.code === "23505" || String(error?.message || "").toLowerCase().includes("duplicate key");
 }
 
+function localDayStart(offsetHours = 7) {
+  const now = new Date();
+  const shifted = new Date(now.getTime() + offsetHours * 60 * 60 * 1000);
+  shifted.setUTCHours(0, 0, 0, 0);
+  return new Date(shifted.getTime() - offsetHours * 60 * 60 * 1000).toISOString();
+}
+
+export async function getDailySentCount(fileName, { platform = "telegram", offsetHours = 7 } = {}) {
+  const since = localDayStart(Number(offsetHours));
+
+  if (isSupabaseConfigured) {
+    const { count, error } = await supabase
+      .from(tableName)
+      .select("id", { count: "exact", head: true })
+      .eq("delivery_type", deliveryTypeFromFile(fileName))
+      .eq("platform", platform)
+      .eq("status", "sent")
+      .gte("sent_at", since);
+
+    if (error) throw new Error(`Supabase daily count failed: ${error.message}`);
+    return count || 0;
+  }
+
+  const entries = await readJson(fileName);
+  return entries.filter((entry) => {
+    return (
+      entry.platform === platform &&
+      entry.status === "sent" &&
+      entry.sent_at &&
+      new Date(entry.sent_at) >= new Date(since)
+    );
+  }).length;
+}
+
 export async function claimDelivery(fileName, entry) {
   const sentAt = new Date().toISOString();
   const claim = { ...entry, status: "sent" };

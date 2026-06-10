@@ -9,7 +9,7 @@ import { sendTelegramMarketMessage, sendTelegramNewsMessage } from "./services/t
 import { fetchExternalNews } from "./services/newsFetcher.js";
 import { fetchExternalMarkets } from "./services/externalMarketFetcher.js";
 import { hasNewsBeenSent, hasNewsTitleBeenSent } from "./services/newsLog.js";
-import { claimDelivery, finishDelivery, getDeliveries } from "./services/deliveryLog.js";
+import { claimDelivery, finishDelivery, getDailySentCount, getDeliveries } from "./services/deliveryLog.js";
 import { hasMarketBeenSent, hasMarketTitleBeenSent } from "./services/marketLog.js";
 import { classifyNewsItem, newsCategories } from "./config/newsCategories.js";
 import { startMarketScheduler } from "./jobs/marketScheduler.js";
@@ -275,8 +275,26 @@ async function dispatchNews(news, platforms = ["telegram", "discord"], { skipDup
 async function runNewsJob({ limit = 3, category = "all", platforms = ["telegram", "discord"] } = {}) {
   const newsItems = await fetchExternalNews({ limit, category });
   const deliveries = [];
+  const dailyLimit = Number(process.env.DAILY_NEWS_LIMIT || 48);
+  const capOffsetHours = Number(process.env.DAILY_CAP_TIMEZONE_OFFSET_HOURS || 7);
 
   for (const news of newsItems) {
+    const dailyCount = await getDailySentCount("news-log.json", {
+      platform: "telegram",
+      offsetHours: capOffsetHours,
+    });
+
+    if (dailyCount >= dailyLimit) {
+      deliveries.push({
+        title: news.title,
+        url: news.url,
+        marketCategory: news.marketCategory,
+        relevanceScore: news.relevanceScore,
+        results: platforms.map((platform) => ({ platform, status: "skipped", reason: "daily-cap" })),
+      });
+      continue;
+    }
+
     const results = await dispatchNews(news, platforms, { skipDuplicates: true });
     deliveries.push({
       title: news.title,
@@ -293,8 +311,27 @@ async function runNewsJob({ limit = 3, category = "all", platforms = ["telegram"
 async function runMarketJob({ limit = 3, category = "all", platforms = ["telegram", "discord"] } = {}) {
   const marketItems = await fetchExternalMarkets({ limit, category });
   const deliveries = [];
+  const dailyLimit = Number(process.env.DAILY_MARKET_LIMIT || 24);
+  const capOffsetHours = Number(process.env.DAILY_CAP_TIMEZONE_OFFSET_HOURS || 7);
 
   for (const market of marketItems) {
+    const dailyCount = await getDailySentCount("market-log.json", {
+      platform: "telegram",
+      offsetHours: capOffsetHours,
+    });
+
+    if (dailyCount >= dailyLimit) {
+      deliveries.push({
+        marketId: market.marketId,
+        title: market.title,
+        url: market.url,
+        marketCategory: market.marketCategory,
+        relevanceScore: market.relevanceScore,
+        results: platforms.map((platform) => ({ platform, status: "skipped", reason: "daily-cap" })),
+      });
+      continue;
+    }
+
     const results = await dispatchMarket(market, platforms, { skipDuplicates: true });
     deliveries.push({
       marketId: market.marketId,
